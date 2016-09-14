@@ -1,0 +1,29 @@
+version: "2"
+
+services:
+  proxy:
+    build:
+      context: ./apache2-proxy
+      args:
+        - http_proxy=${proxy}
+        - https_proxy=${proxy}
+    image: xmarcelet/apache-proxy
+    ports:
+      - "8888:80"
+    links:
+      - lb:dest_node
+
+  lb:
+    image: 'dockercloud/haproxy:latest'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    links:
+      - front
+
+  front:
+    build:
+      context: ./apache2-front
+      args:
+        - http_proxy=${proxy}
+        - https_proxy=${proxy}
+    image: xmarcelet/apache-front

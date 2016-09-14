@@ -1,0 +1,22 @@
+version: "2"
+
+services:
+  proxy:
+    build:
+      context: ./apache2-proxy
+      args:
+        - http_proxy=${proxy}
+        - https_proxy=${proxy}
+    image: xmarcelet/apache-proxy
+    ports:
+      - "8888:80"
+    links:
+      - front:dest_node
+
+  front:
+    build:
+      context: ./apache2-front
+      args:
+        - http_proxy=${proxy}
+        - https_proxy=${proxy}
+    image: xmarcelet/apache-front

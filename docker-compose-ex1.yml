@@ -1,0 +1,12 @@
+version: "2"
+
+services:
+  front:
+    build:
+      context: ./apache2-front
+      args:
+        - http_proxy=${proxy}
+        - https_proxy=${proxy}
+    image: xmarcelet/apache-front
+    ports:
+      - "8888:80"

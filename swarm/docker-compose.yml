@@ -1,0 +1,29 @@
+version: '2'
+
+services:
+  etcd:
+    image: quay.io/coreos/etcd
+    container_name: ${COMPOSE_PROJECT_NAME}_etcd
+    restart: always
+    command: etcd -name etcd0 -advertise-client-urls http://${ETCD_IP}:2379,http://${ETCD_IP}:${ETCD_PORT} -listen-client-urls http://0.0.0.0:2379,http://0.0.0.0:${ETCD_PORT}  -initial-advertise-peer-urls http://${ETCD_IP}:2380  -listen-peer-urls http://0.0.0.0:2380  -initial-cluster-token etcd-cluster-1 -initial-cluster etcd0=http://${ETCD_IP}:2380 -initial-cluster-state new
+    ports:
+     - 2379:2379
+     - 2380:2380
+     - 4001:4001
+
+  registry:
+    build: registry/
+    container_name: ${COMPOSE_PROJECT_NAME}_registry
+    restart: always
+    ports:
+      - 5000:5000
+
+  registry_ui:
+    container_name: ${COMPOSE_PROJECT_NAME}_registry_ui
+    image: konradkleine/docker-registry-frontend:v2
+    environment:
+     - ENV_DOCKER_REGISTRY_HOST=${ETCD_IP}
+     - ENV_DOCKER_REGISTRY_PORT=5000
+    ports:
+     - 8080:80
+

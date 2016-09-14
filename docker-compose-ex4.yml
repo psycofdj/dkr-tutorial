@@ -1,0 +1,36 @@
+version: "2"
+
+services:
+  proxy:
+    image: ${REGISTRY_HOST}/xmarcelet/apache-proxy
+    ports:
+      - "8888:80"
+    links:
+      - lb:dest_node
+    networks:
+      - private
+
+  lb:
+    image: 'dockercloud/haproxy:latest'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/docker/swarm/:/etc/docker/swarm/
+    environment:
+      - DOCKER_TLS_VERIFY
+      - DOCKER_HOST
+      - DOCKER_CERT_PATH=/etc/docker/swarm/
+      - ADDITIONAL_SERVICES=dkrtutorial:front
+    depends_on:
+      - front
+    networks:
+      - private
+
+  front:
+    image: ${REGISTRY_HOST}/xmarcelet/apache-front
+    networks:
+      - private
+
+
+networks:
+  private:
+    driver: overlay
